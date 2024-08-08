@@ -6,7 +6,7 @@ contract VaultLogic {
   address public owner;
   bytes32 private password;
 
-  constructor(bytes32 _password) public {
+  constructor(bytes32 _password) {
     owner = msg.sender;
     password = _password;
   }
@@ -27,7 +27,7 @@ contract Vault {
   mapping (address => uint) deposites;
   bool public canWithdraw = false;
 
-  constructor(address _logicAddress) public {
+  constructor(address _logicAddress) {
     logic = VaultLogic(_logicAddress);
     owner = msg.sender;
   }
@@ -51,7 +51,8 @@ contract Vault {
   function isSolve() external view returns (bool){
     if (address(this).balance == 0) {
       return true;
-    } 
+    }
+    return false;
   }
 
   function openWithdraw() external {

